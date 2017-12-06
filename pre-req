@@ -1,0 +1,91 @@
+---
+
+- name: Giving RWX Permissions to tmp dir
+  command: chmod -R 777 /tmp
+  become: true
+
+- name: create jboss directory
+  file:
+   path: /jboss
+   state: directory
+   mode: 0775
+   owner: jbossadm
+   group: jbossadm
+  become: true
+
+
+- name: create t24 directory
+  file:
+   path: /t24
+   state: directory
+   mode: 0775
+  become: true
+
+
+- name: install zip  and unzip
+  yum: name={{ item }} state=present
+  with_items:
+      - zip
+      - unzip
+      - ksh
+  become: true
+
+- name: Unarchive setup Tools zip file
+  command: /bin/bash -c "unzip -o /etc/src/tools/setuptools-36.2.7.zip" chdir=/etc/src
+  ignore_errors: yes
+
+
+  #unarchive:
+  #  src: /etc/src/tools/{{ setuptools_file }}
+  #  dest: /etc/src
+  #  remote_src: yes
+
+
+- name: Install setup Tools
+  command: /bin/bash -c "python setup.py install" chdir=/etc/src/setuptools-36.2.7
+  become: true
+
+
+
+#- name: Unarchive pip tar
+#  unarchive:
+#     src: /etc/src/tools/{{ pip_file }}
+#     dest: /etc/src
+#     remote_src: yes
+
+
+
+- name: Extract archive for pip
+  command: tar -xvzf /etc/src/tools/{{ pip_file }} chdir="/etc/src/"
+  ignore_errors: yes
+
+- name: set permissions
+  command: chmod -R 777 /etc/src
+  become: true
+  
+
+- name: Install PiP
+  command: /bin/bash -c "python setup.py install" chdir=/etc/src/pip-9.0.1
+  become: true
+
+
+- name: install ptyprocess 
+  pip:
+   name: file:/etc/src/tools/{{ ptyprocess_file }}
+  become: true
+
+
+- name: install pexpect
+  pip:
+   name: file:/etc/src/tools/{{ pexpect_file }}
+  become: true
+
+
+- name: Execute permissions for python packages
+  #file:
+  #  path: /usr/lib/python2.7
+  #  mode: 755
+  #  recurse: yes
+  #become: true
+  command: chmod -R 755 /usr/lib/python2.7
+  become: true
