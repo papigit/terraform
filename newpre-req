@@ -1,0 +1,140 @@
+---
+
+- name: Giving RWX Permissions to tmp dir
+  command: chmod -R 777 /tmp
+  become: true
+
+- name: create jboss directory
+  file:
+   path: /opt/java
+   state: directory
+   mode: 0775
+   owner: jbossadm 
+   group: jbossadm
+  become: true
+
+
+
+- name: install zip/unzip, tar and ksh packages
+  yum: name={{ item }} state=present
+  with_items:
+      - zip
+      - unzip
+      - ksh
+      - tar
+  become: true
+
+- name: Unarchive setup Tools zip file
+  command: /bin/bash -c "unzip -o /etc/src/tools/setuptools-36.2.7.zip" chdir=/etc/src/tools
+  ignore_errors: yes
+
+
+  #unarchive:
+  #  src: /etc/src/tools/{{ setuptools_file }}
+  #  dest: /etc/src
+  #  remote_src: yes
+
+
+- name: Install setup Tools
+  command: /bin/bash -c "python setup.py install" chdir=/etc/src/tools/setuptools-36.2.7
+  become: true
+  ignore_errors: yes
+
+
+
+#- name: Unarchive pip tar
+#  unarchive:
+#     src: /etc/src/tools/{{ pip_file }}
+#     dest: /etc/src
+#     remote_src: yes
+
+
+
+- name: Extract archive for pip
+  command: tar -xvzf /etc/src/tools/{{ pip_file }} chdir="/etc/src/tools"
+  ignore_errors: yes
+
+- name: set permissions
+  command: chmod -R 777 /etc/src
+  become: true
+  
+
+- name: Install PiP
+  command: /bin/bash -c "python setup.py install" chdir=/etc/src/tools/pip-9.0.1
+  become: true
+  ignore_errors: yes
+
+
+
+- name: install ptyprocess 
+  pip:
+   name: file:/etc/src/tools/{{ ptyprocess_file }}
+  become: true
+  ignore_errors: yes
+
+
+
+- name: install pexpect
+  pip:
+   name: file:/etc/src/tools/{{ pexpect_file }}
+  become: true
+  ignore_errors: yes
+
+- name: install python-futures pkg
+  pip:
+   name: file:/etc/src/tools/{{ futures_file }}
+  become: true
+  ignore_errors: yes
+
+- name: install date-utils pkg
+  pip:
+   name: file:/etc/src/tools/{{ dateutils_file }}
+  become: true
+  ignore_errors: yes
+
+
+- name: install boto core  pkg
+  pip:
+   name: file:/etc/src/tools/{{ botocore_file }}
+  become: true
+  ignore_errors: yes
+
+
+
+- name: install doc-utils pkg
+  pip:
+   name: file:/etc/src/tools/{{ docutils_file }}
+  become: true
+  ignore_errors: yes
+
+
+- name: install jms-utils pkg
+  pip:
+   name: file:/etc/src/tools/{{ jmespath_file }}
+  become: true
+  ignore_errors: yes
+
+
+- name: install stransfer 
+  pip:
+   name: file:/etc/src/tools/{{ s3transfer_file }}
+  become: true
+  ignore_errors: yes
+
+
+- name: install boto3
+  pip:
+   name: file:/etc/src/tools/{{ boto_file }}
+  become: true
+  ignore_errors: yes
+
+
+
+- name: Execute permissions for python packages
+  #file:
+  #  path: /usr/lib/python2.7
+  #  mode: 755
+  #  recurse: yes
+  #become: true
+  command: chmod -R 755 /usr/lib/python2.7
+  become: true
