@@ -1,0 +1,5 @@
+ec2ip: "54.169.134.113"
+ec2ip: "13.250.97.136"
+rdsip: postgresql.cgb5fgiw5cxj.ap-southeast-1.rds.amazonaws.com
+ec2ip: "52.221.239.153"
+rdsip: postgresql.cgb5fgiw5cxj.ap-southeast-1.rds.amazonaws.com
