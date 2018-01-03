@@ -1,0 +1,73 @@
+---
+- name: create inventory file
+  template:
+   src: hosts.j2
+   dest: "{{ playbook_dir }}/{{ env }}"
+  become_user: jenkins
+  become: true
+
+- name: copy ec2 inventory to localhost of ansible
+  template:
+   src: hosts.j2
+   dest: "{{ playbook_dir }}/t24/{{ env }}/dev1"
+  become_user: jenkins
+  become: true
+
+- name: copy ec2 inventory to localhost of ansible
+  file:
+   path: "{{ playbook_dir }}"
+   mode: 0777
+   recurse: yes
+   
+
+
+- name: sleep for 30 seconds and continue with play
+  wait_for: timeout=30
+  delegate_to: localhost
+
+
+- name: Adding  all the files to inventory 
+  shell: git add --all
+  args:
+   chdir: "{{ playbook_dir }}"
+  ignore_errors: yes
+
+
+- name: commiting
+  shell: git commit -am "updated inventory"
+  args:
+   chdir: "{{ playbook_dir }}"
+  ignore_errors: yes
+
+- name: create new branch develop if not exist
+  shell: git checkout -b develop
+  args:
+   chdir: "{{ playbook_dir }}"
+  ignore_errors: yes
+
+- name: swith to develop branch if exist
+  shell: git checkout develop
+  args:
+   chdir: "{{ playbook_dir }}"
+  ignore_errors: yes
+
+
+- name: Adding all files
+  shell: git add --all
+  args:
+   chdir: "{{ playbook_dir }}"
+  ignore_errors: yes
+
+
+- name: commiting
+  shell: git commit -am "updated inventory"
+  args:
+   chdir: "{{ playbook_dir }}"
+  ignore_errors: yes
+
+
+- name: push to remote
+  shell: git push origin develop
+  args:
+   chdir: "{{ playbook_dir }}"
+  ignore_errors: yes
